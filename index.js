@@ -62,7 +62,7 @@ app.all('/player/growid/checktoken', (req, res) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-        return res.redirect('/player/growid/login/dashboard');
+        return res.redirect('/player/login/dashboard');
     }
 
     res.redirect(
