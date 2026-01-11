@@ -59,17 +59,18 @@ app.all('/player/growid/login/validate', (req, res) => {
     );
 });
 app.all('/player/growid/checktoken', (req, res) => {
-    const { refreshToken } = req.body;
+    const refreshToken = req.body.refreshToken;
 
     if (!refreshToken) {
-        return res.redirect('/player/login/dashboard');
+        return res.redirect('/player/growid/login/dashboard');
     }
 
+    // redirect ke path FIX + token via query
     res.redirect(
-        `/player/growid/validate/checktoken/{token?}?token=${encodeURIComponent(refreshToken)}`
+        `/player/growid/validate/checktoken?token=${encodeURIComponent(refreshToken)}`
     );
 });
-app.all('/player/growid/validate/checktoken/{token?}', (req, res) => {
+app.all('/player/growid/validate/checktoken', (req, res) => {
     const refreshToken = req.query.token;
 
     try {
@@ -87,7 +88,7 @@ app.all('/player/growid/validate/checktoken/{token?}', (req, res) => {
             return res.render(__dirname + '/public/html/dashboard.ejs');
         }
 
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Account Validated.',
             token: refreshToken,
@@ -98,7 +99,7 @@ app.all('/player/growid/validate/checktoken/{token?}', (req, res) => {
 
     } catch (err) {
         console.log('Invalid token:', err);
-        res.render(__dirname + '/public/html/dashboard.ejs');
+        return res.render(__dirname + '/public/html/dashboard.ejs');
     }
 });
 app.get('/', function (req, res) {
