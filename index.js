@@ -69,21 +69,35 @@ app.all('/player/growid/checktoken', (req, res) => {
         `/player/growid/validate/checktoken/{token?}?token=${encodeURIComponent(refreshToken)}`
     );
 });
-app.all('/player/growid/validate/checktoken/{token}', (req, res) => {
-    const { refreshToken } = req.body;
+app.all('/player/growid/validate/checktoken/{token?}', (req, res) => {
+    const refreshToken = req.query.token;
+
     try {
-    const decoded = Buffer.from(refreshToken, 'base64').toString('utf-8');
-    if (typeof decoded !== 'string' && !decoded.startsWith('growId=') && !decoded.includes('passwords=')) return res.render(__dirname + '/public/html/dashboard.ejs');
-    res.json({
-        status: 'success',
-        message: 'Account Validated.',
-        token: refreshToken,
-        url: '',
-        accountType: 'growtopia',
-        accountAge: 2
-    });
-    } catch (error) {
-        console.log("Redirecting to player login dashboard");
+        if (!refreshToken) {
+            return res.render(__dirname + '/public/html/dashboard.ejs');
+        }
+
+        const decoded = Buffer.from(refreshToken, 'base64').toString('utf-8');
+
+        if (
+            typeof decoded !== 'string' ||
+            !decoded.includes('growId=') ||
+            !decoded.includes('password=')
+        ) {
+            return res.render(__dirname + '/public/html/dashboard.ejs');
+        }
+
+        res.json({
+            status: 'success',
+            message: 'Account Validated.',
+            token: refreshToken,
+            url: '',
+            accountType: 'growtopia',
+            accountAge: 2
+        });
+
+    } catch (err) {
+        console.log('Invalid token:', err);
         res.render(__dirname + '/public/html/dashboard.ejs');
     }
 });
